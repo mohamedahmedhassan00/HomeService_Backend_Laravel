@@ -115,16 +115,14 @@ class EProviderController extends Controller
         $eProviderType = $this->eProviderTypeRepository->pluck('name', 'id');
         $user = $this->userRepository->getByCriteria(new EProvidersCustomersCriteria())->pluck('name', 'id');
         $address = $this->addressRepository->getByCriteria(new AddressesOfUserCriteria(auth()->id()))->pluck('address', 'id');
-        $tax = $this->taxRepository->pluck('name', 'id');
         $usersSelected = [];
         $addressesSelected = [];
-        $taxesSelected = [];
         $hasCustomField = in_array($this->eProviderRepository->model(), setting('custom_field_models', []));
         if ($hasCustomField) {
             $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->eProviderRepository->model());
             $html = generateCustomField($customFields);
         }
-        return view('e_providers.create')->with("customFields", isset($html) ? $html : false)->with("eProviderType", $eProviderType)->with("user", $user)->with("usersSelected", $usersSelected)->with("address", $address)->with("addressesSelected", $addressesSelected)->with("tax", $tax)->with("taxesSelected", $taxesSelected);
+        return view('e_providers.create')->with("customFields", isset($html) ? $html : false)->with("eProviderType", $eProviderType)->with("user", $user)->with("usersSelected", $usersSelected)->with("address", $address)->with("addressesSelected", $addressesSelected);
     }
 
     /**
@@ -205,10 +203,8 @@ class EProviderController extends Controller
         $eProviderType = $this->eProviderTypeRepository->pluck('name', 'id');
         $user = $this->userRepository->getByCriteria(new EProvidersCustomersCriteria())->pluck('name', 'id');
         $address = $this->addressRepository->getByCriteria(new AddressesOfUserCriteria(auth()->id()))->pluck('address', 'id');
-        $tax = $this->taxRepository->pluck('name', 'id');
         $usersSelected = $eProvider->users()->pluck('users.id')->toArray();
         $addressesSelected = $eProvider->addresses()->pluck('addresses.id')->toArray();
-        $taxesSelected = $eProvider->taxes()->pluck('taxes.id')->toArray();
 
         $customFieldsValues = $eProvider->customFieldsValues()->with('customField')->get();
         $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->eProviderRepository->model());
@@ -217,7 +213,7 @@ class EProviderController extends Controller
             $html = generateCustomField($customFields, $customFieldsValues);
         }
 
-        return view('e_providers.edit')->with('eProvider', $eProvider)->with("customFields", isset($html) ? $html : false)->with("eProviderType", $eProviderType)->with("user", $user)->with("usersSelected", $usersSelected)->with("address", $address)->with("addressesSelected", $addressesSelected)->with("tax", $tax)->with("taxesSelected", $taxesSelected);
+        return view('e_providers.edit')->with('eProvider', $eProvider)->with("customFields", isset($html) ? $html : false)->with("eProviderType", $eProviderType)->with("user", $user)->with("usersSelected", $usersSelected)->with("address", $address)->with("addressesSelected", $addressesSelected);
     }
 
     /**
@@ -243,7 +239,6 @@ class EProviderController extends Controller
         try {
             $input['users'] = isset($input['users']) ? $input['users'] : [];
             $input['addresses'] = isset($input['addresses']) ? $input['addresses'] : [];
-            $input['taxes'] = isset($input['taxes']) ? $input['taxes'] : [];
             $eProvider = $this->eProviderRepository->update($input, $id);
             if (isset($input['image']) && $input['image'] && is_array($input['image'])) {
                 foreach ($input['image'] as $fileUuid) {

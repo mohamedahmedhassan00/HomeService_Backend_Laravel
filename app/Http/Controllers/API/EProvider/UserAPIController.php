@@ -102,7 +102,7 @@ class UserAPIController extends Controller
 
             $user->assignRole('provider');
 
-            $this->createProvider($user, $request);
+            $provider = $this->createProvider($user, $request);
 
         } catch (ValidationException $e) {
             return $this->sendError(array_values($e->errors()));
@@ -111,7 +111,7 @@ class UserAPIController extends Controller
         }
 
 
-        return $this->sendResponse($user, 'Provider retrieved successfully');
+        return $this->sendResponse(['user' => $user, 'provider' => $provider], 'Provider retrieved successfully');
     }
 
     function logout(Request $request)
@@ -254,5 +254,7 @@ class UserAPIController extends Controller
                     ->toMediaCollection('image');
             }
         }
+
+        return $eProvider;
     }
 }

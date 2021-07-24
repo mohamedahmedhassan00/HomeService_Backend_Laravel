@@ -47,7 +47,6 @@ use Spatie\OpeningHours\OpeningHours;
  * @property integer e_provider_type_id
  * @property string description
  * @property string phone_number
- * @property string mobile_number
  * @property double availability_range
  * @property boolean available
  * @property boolean featured
@@ -69,7 +68,6 @@ class EProvider extends Model implements HasMedia, Castable
         'name' => 'required|max:127',
         'e_provider_type_id' => 'required|exists:e_provider_types,id',
         'phone_number' => 'max:50',
-        'mobile_number' => 'max:50',
         'availability_range' => 'required|max:9999999,99|min:0'
     ];
     public $translatable = [
@@ -82,7 +80,6 @@ class EProvider extends Model implements HasMedia, Castable
         'e_provider_type_id',
         'description',
         'phone_number',
-        'mobile_number',
         'availability_range',
         'available',
         'featured',
@@ -100,7 +97,6 @@ class EProvider extends Model implements HasMedia, Castable
         'e_provider_type_id' => 'integer',
         'description' => 'string',
         'phone_number' => 'string',
-        'mobile_number' => 'string',
         'availability_range' => 'double',
         'available' => 'boolean',
         'featured' => 'boolean',

@@ -114,16 +114,6 @@
             </div>
         </div>
     </div>
-    <!-- Mobile Number Field -->
-    <div class="form-group align-items-baseline d-flex flex-column flex-md-row">
-        {!! Form::label('mobile_number', trans("lang.e_provider_mobile_number"), ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-        <div class="col-md-9">
-            {!! Form::text('mobile_number', null,  ['class' => 'form-control','placeholder'=>  trans("lang.e_provider_mobile_number_placeholder")]) !!}
-            <div class="form-text text-muted">
-                {{ trans("lang.e_provider_mobile_number_help") }}
-            </div>
-        </div>
-    </div>
 
     <!-- Addresses Field -->
     <div class="form-group align-items-baseline d-flex flex-column flex-md-row">
@@ -136,15 +126,6 @@
                     <a href="{{route('addresses.create')}}" class="text-success float-right">{{__('lang.address_create')}}</a>
                 @endcan
             </div>
-        </div>
-    </div>
-
-    <!-- Taxes Field -->
-    <div class="form-group align-items-baseline d-flex flex-column flex-md-row">
-        {!! Form::label('taxes[]', trans("lang.e_provider_taxes"),['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
-        <div class="col-md-9">
-            {!! Form::select('taxes[]', $tax, $taxesSelected, ['class' => 'select2 form-control' , 'multiple'=>'multiple']) !!}
-            <div class="form-text text-muted">{{ trans("lang.e_provider_taxes_help") }}</div>
         </div>
     </div>
 

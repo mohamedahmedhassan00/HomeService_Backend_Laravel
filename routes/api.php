@@ -25,6 +25,7 @@ Route::prefix('provider')->group(function () {
     Route::get('user', 'API\EProvider\UserAPIController@user');
     Route::get('logout', 'API\EProvider\UserAPIController@logout');
     Route::get('settings', 'API\EProvider\UserAPIController@settings');
+    Route::patch('test/users/{id}', 'API\EProvider\UserAPIController@update');
 });
 
 

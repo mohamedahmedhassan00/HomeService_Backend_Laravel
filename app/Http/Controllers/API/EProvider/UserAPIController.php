@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\API\EProvider;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ProviderUserResource;
 use App\Models\EProvider;
 use App\Models\User;
 use App\Repositories\CustomFieldRepository;
@@ -65,7 +66,7 @@ class UserAPIController extends Controller
                 }
                 $user->device_token = $request->input('device_token', '');
                 $user->save();
-                return $this->sendResponse($user, 'User retrieved successfully');
+                return $this->sendResponse(new ProviderUserResource($user), 'User retrieved successfully');
             } else {
                 return $this->sendError(__('auth.failed'), 200);
             }
@@ -102,7 +103,7 @@ class UserAPIController extends Controller
 
             $user->assignRole('provider');
 
-            $provider = $this->createProvider($user, $request);
+            $this->createProvider($user, $request);
 
         } catch (ValidationException $e) {
             return $this->sendError(array_values($e->errors()));
@@ -111,7 +112,7 @@ class UserAPIController extends Controller
         }
 
 
-        return $this->sendResponse(['user' => $user, 'provider' => $provider], 'Provider retrieved successfully');
+        return $this->sendResponse(new ProviderUserResource($user), 'Provider retrieved successfully');
     }
 
     function logout(Request $request)
@@ -201,12 +202,31 @@ class UserAPIController extends Controller
                     $input['password'] = Hash::make($request->input('password'));
                 }
                 $user = $this->userRepository->update($input, $id);
+
+                $provider = $this->providerRepository->update($request->only([
+                    'availability_range',
+                    'description',
+                    'available',
+                    'featured'
+                ]), $user->eProviders()->first()->id);
+
+                if (isset($input['address'])) {
+                    $provider->addresses()->update($request->address);
+                }
+                if (isset($input['availability_hours'])) {
+                    $hours = $input['availability_hours'];
+                    if (is_array($hours)){
+                        foreach ($hours as $hour) {
+                            $provider->availabilityHours()->update($hour);
+                        }
+                    }
+                }
             }
         } catch (ValidatorException $e) {
             return $this->sendError($e->getMessage(), 200);
         }
 
-        return $this->sendResponse($user, __('lang.updated_successfully', ['operator' => __('lang.user')]));
+        return $this->sendResponse(new ProviderUserResource($user), __('lang.updated_successfully', ['operator' => __('lang.user')]));
     }
 
     function sendResetLinkEmail(Request $request): JsonResponse
@@ -236,12 +256,29 @@ class UserAPIController extends Controller
             'phone_number'  => $request->input('phone_number'),
             'availability_range'  => $request->input('availability_range'),
             'description'  => $request->input('description'),
-            'addresses' => [$request->input('addresses')],
             'users' => [$user->id],
             'e_provider_type_id' => 3,
             'accepted' => 1,
             'available' => 1,
+            'featured' => 1,
         ]);
+
+        $eProvider->addresses()->create(array_merge($request->address, [
+            'user_id' => $user->id
+        ]));
+
+        $hours = $request->availability_hours;
+
+        if (isset($hours)) {
+            if (is_array($hours)){
+                foreach ($hours as $hour) {
+                    $eProvider->availabilityHours()->create($hour);
+                }
+            }
+        }
+
+        $eProvider->availabilityHours()->create($request->availability_hours);
+
         $image = $request->image;
         if (isset($image) && $image) {
             if (is_array($image)){

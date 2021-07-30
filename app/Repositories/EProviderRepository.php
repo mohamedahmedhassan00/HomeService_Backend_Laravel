@@ -43,4 +43,19 @@ class EProviderRepository extends BaseRepository
     {
         return EProvider::class;
     }
+
+    public function setImage($image, $provider)
+    {
+        if (isset($image) && $image) {
+            if (is_array($image)){
+                foreach ($image as $img) {
+                    $provider->addMedia($img)
+                        ->toMediaCollection('image');
+                }
+            } else {
+                $provider->addMedia($image)
+                    ->toMediaCollection('image');
+            }
+        }
+    }
 }

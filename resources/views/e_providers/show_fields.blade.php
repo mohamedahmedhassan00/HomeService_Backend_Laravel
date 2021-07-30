@@ -54,6 +54,14 @@
     </div>
 </div>
 
+<!-- Mobile Number Field -->
+<div class="form-group row col-6">
+    {!! Form::label('mobile_number', 'Mobile Number:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
+    <div class="col-md-9">
+        <p>{!! $eProvider->mobile_number !!}</p>
+    </div>
+</div>
+
 <!-- Addresses Field -->
 <div class="form-group row col-6">
     {!! Form::label('addresses', 'Addresses:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
@@ -75,6 +83,14 @@
     {!! Form::label('available', 'Available:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
     <div class="col-md-9">
         <p>{!! $eProvider->available !!}</p>
+    </div>
+</div>
+
+<!-- Taxes Field -->
+<div class="form-group row col-6">
+    {!! Form::label('taxes', 'Taxes:', ['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
+    <div class="col-md-9">
+        <p>{!! $eProvider->taxes !!}</p>
     </div>
 </div>
 

@@ -19,6 +19,7 @@ use App\Repositories\UserRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -57,15 +58,15 @@ class UserAPIController extends Controller
                 'email' => 'required|email',
                 'password' => 'required',
             ]);
-            if (auth()->attempt(['email' => $request->input('email'), 'password' => $request->input('password')])) {
+            if (Auth::guard('provider')->attempt(['email' => $request->input('email'), 'password' => $request->input('password')])) {
                 // Authentication passed...
-                $user = auth()->user();
-                if (!$user->hasRole('provider')) {
-                    return $this->sendError(__('auth.account_not_accepted'), 200);
-                }
+                $user = Auth::guard('provider')->user();
+//                if (!$user->hasRole('provider')) {
+//                    return $this->sendError(__('auth.account_not_accepted'), 200);
+//                }
                 $user->device_token = $request->input('device_token', '');
                 $user->save();
-                return $this->sendResponse($user, 'User retrieved successfully');
+                return $this->sendResponse($user, 'Provider retrieved successfully');
             } else {
                 return $this->sendError(__('auth.failed'), 200);
             }
@@ -86,23 +87,38 @@ class UserAPIController extends Controller
     function register(Request $request)
     {
         try {
-            $this->validate($request, User::$rules);
-            $user = new User;
-            $user->name = $request->input('name');
-            $user->email = $request->input('email');
-            $user->phone_number = $request->input('phone_number');
-            $user->phone_verified_at = $request->input('phone_verified_at');
-            $user->device_token = $request->input('device_token', '');
-            $user->password = Hash::make($request->input('password'));
-            $user->api_token = Str::random(60);
+            $this->validate($request, EProvider::$rules);
+
+            $provider = new EProvider;
+            $provider->name = $request->input('name');
+            $provider->email = $request->input('email');
+            $provider->phone_number = $request->input('phone_number');
+            $provider->phone_verified_at = $request->input('phone_verified_at');
+            $provider->device_token = $request->input('device_token', '');
+            $provider->password = $request->input('password');
+            $provider->api_token = Str::random(60);
             if ($request->input('remember')) {
-                $user->remember_token = Str::random(60);
+                $provider->remember_token = Str::random(60);
             }
-            $user->save();
-
-            $user->assignRole('provider');
-
-            $provider = $this->createProvider($user, $request);
+            $provider->availability_range  = $request->input('availability_range');
+            $provider->description  = $request->input('description');
+            $provider->e_provider_type_id = 3;
+            $provider->accepted = 1;
+            $provider->available = 1;
+            $provider->save();
+            $provider->addresses()->create($request->address);
+            $image = $request->image;
+            if (isset($image) && $image) {
+                if (is_array($image)){
+                    foreach ($image as $img) {
+                        $provider->addMedia($img)
+                            ->toMediaCollection('image');
+                    }
+                } else {
+                    $provider->addMedia($image)
+                        ->toMediaCollection('image');
+                }
+            }
 
         } catch (ValidationException $e) {
             return $this->sendError(array_values($e->errors()));
@@ -111,7 +127,7 @@ class UserAPIController extends Controller
         }
 
 
-        return $this->sendResponse(['user' => $user, 'provider' => $provider], 'Provider retrieved successfully');
+        return $this->sendResponse(['provider' => $provider, 'address' => $provider->addresses], 'Provider retrieved successfully');
     }
 
     function logout(Request $request)
@@ -229,32 +245,4 @@ class UserAPIController extends Controller
 
     }
 
-    private function createProvider(User $user, Request $request)
-    {
-        $eProvider = $this->providerRepository->create([
-            'name'  => $request->input('name'),
-            'phone_number'  => $request->input('phone_number'),
-            'availability_range'  => $request->input('availability_range'),
-            'description'  => $request->input('description'),
-            'addresses' => [$request->input('addresses')],
-            'users' => [$user->id],
-            'e_provider_type_id' => 3,
-            'accepted' => 1,
-            'available' => 1,
-        ]);
-        $image = $request->image;
-        if (isset($image) && $image) {
-            if (is_array($image)){
-                foreach ($image as $img) {
-                    $eProvider->addMedia($img)
-                        ->toMediaCollection('image');
-                }
-            } else {
-                $eProvider->addMedia($image)
-                    ->toMediaCollection('image');
-            }
-        }
-
-        return $eProvider;
-    }
 }

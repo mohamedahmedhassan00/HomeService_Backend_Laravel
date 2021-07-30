@@ -21,6 +21,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Image\Exceptions\InvalidManipulation;
 use Spatie\Image\Manipulations;
 use Spatie\MediaLibrary\HasMedia\HasMedia;
@@ -47,6 +49,7 @@ use Spatie\OpeningHours\OpeningHours;
  * @property integer e_provider_type_id
  * @property string description
  * @property string phone_number
+ * @property string mobile_number
  * @property double availability_range
  * @property boolean available
  * @property boolean featured
@@ -65,9 +68,11 @@ class EProvider extends Model implements HasMedia, Castable
      * @var array
      */
     public static $rules = [
-        'name' => 'required|max:127',
-        'e_provider_type_id' => 'required|exists:e_provider_types,id',
-        'phone_number' => 'max:50',
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|max:255|unique:e_providers',
+        'phone_number' => 'required|max:255|unique:e_providers',
+        'password' => 'required',
+//        'e_provider_type_id' => 'required|exists:e_provider_types,id',
         'availability_range' => 'required|max:9999999,99|min:0'
     ];
     public $translatable = [
@@ -80,6 +85,7 @@ class EProvider extends Model implements HasMedia, Castable
         'e_provider_type_id',
         'description',
         'phone_number',
+        'mobile_number',
         'availability_range',
         'available',
         'featured',
@@ -97,6 +103,7 @@ class EProvider extends Model implements HasMedia, Castable
         'e_provider_type_id' => 'integer',
         'description' => 'string',
         'phone_number' => 'string',
+        'mobile_number' => 'string',
         'availability_range' => 'double',
         'available' => 'boolean',
         'featured' => 'boolean',
@@ -119,6 +126,19 @@ class EProvider extends Model implements HasMedia, Castable
         "created_at",
         "updated_at",
     ];
+
+    public function setPasswordAttribute($password)
+    {
+        return $this->attributes['password'] = Hash::make($password);
+    }
+
+    public function setRememberTokenAttribute($remember)
+    {
+        if ($remember) {
+            return $this->attributes['remember'] = Str::random(60);
+        }
+    }
+
 
     /**
      * @return CastsAttributes|CastsInboundAttributes|string

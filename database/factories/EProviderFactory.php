@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Factory;
 $factory->define(EProvider::class, function (Faker $faker) {
     return [
         'name' => $faker->randomElement(['Gardner Construction', 'Concrete', 'Masonry', 'House', 'Care Services', 'Security', 'Dentists', 'Epoxy Coating', 'Glass', 'Painting', 'Roofing', 'Sewer Cleaning', 'Architect']) . " " . $faker->company,
+        'email' => $faker->unique()->safeEmail,
+        'password' => '123456', // 123456
         'description' => $faker->text,
         'e_provider_type_id' => $faker->numberBetween(2, 3),
         'phone_number' => $faker->phoneNumber,

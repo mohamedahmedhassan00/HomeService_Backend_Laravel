@@ -19,7 +19,6 @@ $factory->define(Address::class, function (Faker $faker) {
         'address' => $faker->address,
         'latitude' => $faker->randomFloat(8, 50, 52),
         'longitude' => $faker->randomFloat(8, 9, 12),
-        'user_id' => User::all()->random()->id
     ];
 });
 

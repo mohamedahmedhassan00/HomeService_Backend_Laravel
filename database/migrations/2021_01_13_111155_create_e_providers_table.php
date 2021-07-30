@@ -21,14 +21,21 @@ class CreateEProvidersTable extends Migration
     {
         Schema::create('e_providers', function (Blueprint $table) {
             $table->increments('id');
-            $table->longText('name')->nullable();
+            $table->string('email')->unique();
+            $table->string('name');
+            $table->string('phone_number', 24)->nullable()->unique()->default(null);
+            $table->timestamp('phone_verified_at')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->char('api_token', 60)->unique()->nullable()->default(null);
+            $table->string('device_token')->nullable();
             $table->integer('e_provider_type_id')->unsigned();
             $table->longText('description')->nullable();
-            $table->string('phone_number', 50)->nullable();
             $table->double('availability_range', 9, 2)->nullable()->default(0);
             $table->boolean('available')->nullable()->default(1);
             $table->boolean('featured')->nullable()->default(0);
             $table->boolean('accepted')->nullable()->default(0);
+            $table->rememberToken();
             $table->timestamps();
             $table->foreign('e_provider_type_id')->references('id')->on('e_provider_types')->onDelete('cascade')->onUpdate('cascade');
         });

@@ -9,6 +9,7 @@
 namespace App\Repositories;
 
 use App\Models\EProvider;
+use Illuminate\Support\Str;
 use InfyOm\Generator\Common\BaseRepository;
 
 /**
@@ -42,5 +43,36 @@ class EProviderRepository extends BaseRepository
     public function model()
     {
         return EProvider::class;
+    }
+
+    public function createProvider($request)
+    {
+        $provider = $this->create($request->merge([
+            'api_token' => Str::random(60),
+            'e_provider_type_id' => 3,
+            'accepted' => 1,
+            'available' => 1,
+        ])->except('address'));
+
+        $provider->addresses()->create($request->address);
+
+        $this->setImage($request->image, $provider);
+
+        return $provider;
+    }
+
+    public function setImage($image, $provider)
+    {
+        if (isset($image) && $image) {
+            if (is_array($image)){
+                foreach ($image as $img) {
+                    $provider->addMedia($img)
+                        ->toMediaCollection('image');
+                }
+            } else {
+                $provider->addMedia($image)
+                    ->toMediaCollection('image');
+            }
+        }
     }
 }

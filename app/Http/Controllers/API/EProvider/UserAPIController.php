@@ -277,8 +277,6 @@ class UserAPIController extends Controller
             }
         }
 
-        $eProvider->availabilityHours()->create($request->availability_hours);
-
         $image = $request->image;
         if (isset($image) && $image) {
             if (is_array($image)){

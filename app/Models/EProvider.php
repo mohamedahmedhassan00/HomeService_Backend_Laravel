@@ -21,9 +21,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Spatie\Image\Exceptions\InvalidManipulation;
 use Spatie\Image\Manipulations;
 use Spatie\MediaLibrary\HasMedia\HasMedia;
@@ -56,7 +53,7 @@ use Spatie\OpeningHours\OpeningHours;
  * @property boolean featured
  * @property boolean accepted
  */
-class EProvider extends Authenticatable implements HasMedia, Castable
+class EProvider extends Model implements HasMedia, Castable
 {
     use HasMediaTrait {
         getFirstMediaUrl as protected getFirstMediaUrlTrait;
@@ -69,27 +66,23 @@ class EProvider extends Authenticatable implements HasMedia, Castable
      * @var array
      */
     public static $rules = [
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|max:255|unique:e_providers',
-        'phone_number' => 'required|max:255|unique:e_providers',
-        'password' => 'required',
-//        'e_provider_type_id' => 'required|exists:e_provider_types,id',
+        'name' => 'required|max:127',
+        'e_provider_type_id' => 'required|exists:e_provider_types,id',
+        'phone_number' => 'max:50',
+        'mobile_number' => 'max:50',
         'availability_range' => 'required|max:9999999,99|min:0'
     ];
-    public $translatable = [];
+    public $translatable = [
+        'name',
+        'description',
+    ];
     public $table = 'e_providers';
-
     public $fillable = [
         'name',
-        'email',
-        'phone_number',
-        'remember_token',
-        'phone_verified_at',
-        'password',
-        'api_token',
-        'device_token',
         'e_provider_type_id',
         'description',
+        'phone_number',
+        'mobile_number',
         'availability_range',
         'available',
         'featured',
@@ -104,16 +97,10 @@ class EProvider extends Authenticatable implements HasMedia, Castable
     protected $casts = [
         'image' => 'string',
         'name' => 'string',
-        'email' => 'string',
-        'phone_number' => 'string',
-        'password' => 'string',
-        'email_verified_at' => 'datetime',
-        'phone_verified_at' => 'datetime',
-        'api_token' => 'string',
-        'device_token' => 'string',
-        'remember_token' => 'string',
         'e_provider_type_id' => 'integer',
         'description' => 'string',
+        'phone_number' => 'string',
+        'mobile_number' => 'string',
         'availability_range' => 'double',
         'available' => 'boolean',
         'featured' => 'boolean',
@@ -135,22 +122,7 @@ class EProvider extends Authenticatable implements HasMedia, Castable
     protected $hidden = [
         "created_at",
         "updated_at",
-        'password',
-        'remember_token',
     ];
-
-    public function setPasswordAttribute($password)
-    {
-        return $this->attributes['password'] = Hash::make($password);
-    }
-
-    public function setRememberTokenAttribute($remember_token)
-    {
-        if ($remember_token) {
-            return $this->attributes['remember_token'] = Str::random(60);
-        }
-    }
-
 
     /**
      * @return CastsAttributes|CastsInboundAttributes|string

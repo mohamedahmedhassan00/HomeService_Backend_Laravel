@@ -25,6 +25,7 @@ Route::prefix('provider')->group(function () {
     Route::get('user', 'API\EProvider\UserAPIController@user');
     Route::get('logout', 'API\EProvider\UserAPIController@logout');
     Route::get('settings', 'API\EProvider\UserAPIController@settings');
+    Route::patch('e-providers/{e_provider}', 'API\EProvider\EProviderAPIController@update');
 });
 
 
@@ -64,16 +65,14 @@ Route::resource('option_groups', 'API\OptionGroupAPIController');
 Route::resource('options', 'API\OptionAPIController');
 
 Route::middleware('auth:api')->group(function () {
-    Route::group(['middleware' => ['role:provider']], function () {
-        Route::prefix('provider')->group(function () {
-            Route::post('users/{id}', 'API\UserAPIController@update');
-            Route::get('dashboard', 'API\DashboardAPIController@provider');
-            Route::resource('e_providers', 'API\EProvider\EProviderAPIController');
-            Route::resource('notifications', 'API\NotificationAPIController');
-            Route::get('e_service_reviews', 'API\EServiceReviewAPIController@index')->name('e_service_reviews.index');
-            Route::get('e_services', 'API\EServiceAPIController@index')->name('e_services.index');
-            Route::put('payments/{id}', 'API\PaymentAPIController@update')->name('payments.update');
-        });
+    Route::prefix('provider')->group(function () {
+        Route::post('users/{id}', 'API\UserAPIController@update');
+        Route::get('dashboard', 'API\DashboardAPIController@provider');
+        Route::resource('e_providers', 'API\EProvider\EProviderAPIController');
+        Route::resource('notifications', 'API\NotificationAPIController');
+        Route::get('e_service_reviews', 'API\EServiceReviewAPIController@index')->name('e_service_reviews.index');
+        Route::get('e_services', 'API\EServiceAPIController@index')->name('e_services.index');
+        Route::put('payments/{id}', 'API\PaymentAPIController@update')->name('payments.update');
     });
     Route::post('uploads/store', 'API\UploadAPIController@store');
     Route::post('uploads/clear', 'API\UploadAPIController@clear');

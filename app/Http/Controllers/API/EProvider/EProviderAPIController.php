@@ -12,14 +12,18 @@ namespace App\Http\Controllers\API\EProvider;
 use App\Criteria\EProviders\EProvidersOfUserCriteria;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateEProviderRequest;
+use App\Http\Resources\EProviderResource;
+use App\Models\EProvider;
 use App\Repositories\EProviderRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use InfyOm\Generator\Criteria\LimitOffsetCriteria;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Exceptions\RepositoryException;
+use Prettus\Validator\Exceptions\ValidatorException;
 
 /**
  * Class EProviderController
@@ -81,5 +85,19 @@ class EProviderAPIController extends Controller
         $this->filterModel($request, $eProvider);
 
         return $this->sendResponse($eProvider->toArray(), 'EProvider retrieved successfully');
+    }
+
+    public function update(EProvider $e_provider, Request $request)
+    {
+        if (empty($e_provider)) {
+            return $this->sendError('Provider not found');
+        }
+        try {
+            $e_provider = $this->eProviderRepository->update($request->except(['api_token']), $e_provider->id);
+        } catch (ValidatorException $e) {
+            return $this->sendError($e->getMessage(), 200);
+        }
+
+        return $this->sendResponse(new EProviderResource($e_provider), __('lang.updated_successfully', ['operator' => __('lang.e_provider')]));
     }
 }

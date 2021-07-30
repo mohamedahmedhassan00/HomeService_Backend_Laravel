@@ -90,21 +90,16 @@ class UserAPIController extends Controller
         try {
             $this->validate($request, EProvider::$rules);
 
-            $provider = $this->providerRepository->create($request->merge([
-                'api_token' => Str::random(60),
-                'e_provider_type_id' => 3,
-                'accepted' => 1,
-                'available' => 1,
-            ])->except('address'));
-
-            $provider->addresses()->create($request->address);
-
-            $this->providerRepository->setImage($request->image, $provider);
+            $provider = $this->providerRepository->createProvider($request);
 
         } catch (ValidationException $e) {
+
             return $this->sendError(array_values($e->errors()));
+
         } catch (Exception $e) {
+
             return $this->sendError($e->getMessage(), 200);
+
         }
 
         return $this->sendResponse(new EProviderResource($provider), 'Provider retrieved successfully');

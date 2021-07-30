@@ -193,6 +193,7 @@ class UserAPIController extends Controller
         if (empty($user)) {
             return $this->sendError('User not found');
         }
+
         $input = $request->except(['api_token']);
         try {
             if ($request->has('device_token')) {
@@ -201,6 +202,7 @@ class UserAPIController extends Controller
                 if (isset($input['password'])) {
                     $input['password'] = Hash::make($request->input('password'));
                 }
+
                 $user = $this->userRepository->update($input, $id);
 
                 $provider = $this->providerRepository->update($request->only([
@@ -213,6 +215,7 @@ class UserAPIController extends Controller
                 if (isset($input['address'])) {
                     $provider->addresses()->update($request->address);
                 }
+
                 if (isset($input['availability_hours'])) {
                     $hours = $input['availability_hours'];
                     if (is_array($hours)){
@@ -222,6 +225,7 @@ class UserAPIController extends Controller
                     }
                 }
             }
+
         } catch (ValidatorException $e) {
             return $this->sendError($e->getMessage(), 200);
         }

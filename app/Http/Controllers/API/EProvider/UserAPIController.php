@@ -61,13 +61,13 @@ class UserAPIController extends Controller
             ]);
             if (Auth::guard('provider')->attempt(['email' => $request->input('email'), 'password' => $request->input('password')])) {
                 // Authentication passed...
-                $user = Auth::guard('provider')->user();
+                $provider = Auth::guard('provider')->user();
 //                if (!$user->hasRole('provider')) {
 //                    return $this->sendError(__('auth.account_not_accepted'), 200);
 //                }
-                $user->device_token = $request->input('device_token', '');
-                $user->save();
-                return $this->sendResponse($user, 'Provider retrieved successfully');
+                $provider->device_token = $request->input('device_token', '');
+                $provider->save();
+                return $this->sendResponse(new EProviderResource($provider), 'Provider retrieved successfully');
             } else {
                 return $this->sendError(__('auth.failed'), 200);
             }

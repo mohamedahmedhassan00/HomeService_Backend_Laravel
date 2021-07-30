@@ -22,6 +22,7 @@ class CreateEProvidersTable extends Migration
         Schema::create('e_providers', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
+            $table->string('phone_number', 24)->nullable();
             $table->integer('e_provider_type_id')->unsigned();
             $table->longText('description')->nullable();
             $table->double('availability_range', 9, 2)->nullable()->default(0);

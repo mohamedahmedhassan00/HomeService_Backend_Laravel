@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\API\EProvider;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\EProviderResource;
 use App\Models\EProvider;
 use App\Models\User;
 use App\Repositories\CustomFieldRepository;
@@ -89,36 +90,16 @@ class UserAPIController extends Controller
         try {
             $this->validate($request, EProvider::$rules);
 
-            $provider = new EProvider;
-            $provider->name = $request->input('name');
-            $provider->email = $request->input('email');
-            $provider->phone_number = $request->input('phone_number');
-            $provider->phone_verified_at = $request->input('phone_verified_at');
-            $provider->device_token = $request->input('device_token', '');
-            $provider->password = $request->input('password');
-            $provider->api_token = Str::random(60);
-            if ($request->input('remember')) {
-                $provider->remember_token = Str::random(60);
-            }
-            $provider->availability_range  = $request->input('availability_range');
-            $provider->description  = $request->input('description');
-            $provider->e_provider_type_id = 3;
-            $provider->accepted = 1;
-            $provider->available = 1;
-            $provider->save();
+            $provider = $this->providerRepository->create($request->merge([
+                'api_token' => Str::random(60),
+                'e_provider_type_id' => 3,
+                'accepted' => 1,
+                'available' => 1,
+            ])->except('address'));
+
             $provider->addresses()->create($request->address);
-            $image = $request->image;
-            if (isset($image) && $image) {
-                if (is_array($image)){
-                    foreach ($image as $img) {
-                        $provider->addMedia($img)
-                            ->toMediaCollection('image');
-                    }
-                } else {
-                    $provider->addMedia($image)
-                        ->toMediaCollection('image');
-                }
-            }
+
+            $this->providerRepository->setImage($request->image, $provider);
 
         } catch (ValidationException $e) {
             return $this->sendError(array_values($e->errors()));
@@ -126,8 +107,7 @@ class UserAPIController extends Controller
             return $this->sendError($e->getMessage(), 200);
         }
 
-
-        return $this->sendResponse(['provider' => $provider, 'address' => $provider->addresses], 'Provider retrieved successfully');
+        return $this->sendResponse(new EProviderResource($provider), 'Provider retrieved successfully');
     }
 
     function logout(Request $request)

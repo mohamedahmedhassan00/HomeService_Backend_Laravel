@@ -241,7 +241,6 @@ class EProviderController extends Controller
         $input = $request->all();
         $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->eProviderRepository->model());
         try {
-            $input['users'] = isset($input['users']) ? $input['users'] : [];
             $input['addresses'] = isset($input['addresses']) ? $input['addresses'] : [];
             $input['taxes'] = isset($input['taxes']) ? $input['taxes'] : [];
             $eProvider = $this->eProviderRepository->update($input, $id);
@@ -256,6 +255,10 @@ class EProviderController extends Controller
                 $eProvider->customFieldsValues()
                     ->updateOrCreate(['custom_field_id' => $value['custom_field_id']], $value);
             }
+            if ($eProvider->users()->first()){
+                $this->userRepository->update($request->only(['name', 'phone_number']), $eProvider->users()->first()->id);
+            }
+
             event(new EProviderChangedEvent($eProvider, $oldEProvider));
         } catch (ValidatorException $e) {
             Flash::error($e->getMessage());

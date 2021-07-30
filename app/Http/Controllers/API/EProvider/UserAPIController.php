@@ -195,33 +195,30 @@ class UserAPIController extends Controller
         }
 
         $input = $request->except(['api_token']);
+
         try {
-            if ($request->has('device_token')) {
-                $user = $this->userRepository->update($request->only('device_token'), $id);
-            } else {
-                if (isset($input['password'])) {
-                    $input['password'] = Hash::make($request->input('password'));
-                }
+            if (isset($input['password'])) {
+                $input['password'] = Hash::make($request->input('password'));
+            }
 
-                $user = $this->userRepository->update($input, $id);
+            $user = $this->userRepository->update($input, $id);
 
-                $provider = $this->providerRepository->update($request->only([
-                    'availability_range',
-                    'description',
-                    'available',
-                    'featured'
-                ]), $user->eProviders()->first()->id);
+            $provider = $this->providerRepository->update($request->only([
+                'availability_range',
+                'description',
+                'available',
+                'featured'
+            ]), $user->eProviders()->first()->id);
 
-                if (isset($input['address'])) {
-                    $provider->addresses()->update($request->address);
-                }
+            if (isset($input['address'])) {
+                $provider->addresses()->update($request->address);
+            }
 
-                if (isset($input['availability_hours'])) {
-                    $hours = $input['availability_hours'];
-                    if (is_array($hours)){
-                        foreach ($hours as $hour) {
-                            $provider->availabilityHours()->update($hour);
-                        }
+            if (isset($input['availability_hours'])) {
+                $hours = $input['availability_hours'];
+                if (is_array($hours)){
+                    foreach ($hours as $hour) {
+                        $provider->availabilityHours()->update($hour);
                     }
                 }
             }
@@ -260,12 +257,13 @@ class UserAPIController extends Controller
             'phone_number'  => $request->input('phone_number'),
             'availability_range'  => $request->input('availability_range'),
             'description'  => $request->input('description'),
-            'users' => [$user->id],
             'e_provider_type_id' => 3,
             'accepted' => 1,
             'available' => 1,
             'featured' => 1,
         ]);
+
+        $eProvider->users()->attach($user->id);
 
         $eProvider->addresses()->create(array_merge($request->address, [
             'user_id' => $user->id

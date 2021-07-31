@@ -63,6 +63,10 @@ class DashboardAPIController extends Controller
             $earning['value'] = $this->earningRepository->all()->sum('e_provider_earning');
             $statistics[] = $earning;
 
+            $admin_earning['description'] = 'admin_earning';
+            $admin_earning['value'] = $this->earningRepository->all()->sum('admin_earning');
+            $statistics[] = $admin_earning;
+
             $this->bookingRepository->pushCriteria(new BookingsOfUserCriteria(auth()->id()));
             $bookingsCount['description'] = "total_bookings";
             $bookingsCount['value'] = $this->bookingRepository->all('bookings.id')->count();

@@ -63,6 +63,7 @@ class NewBooking extends Notification
         $message = new FcmMessage();
         // TODO translate new booking notification
         $notification = [
+            'booking_id' => $this->booking->id,
             'title' => $this->booking->e_provider->name,
             'body' => "New Booking #" . $this->booking->id . " from " . $this->booking->user->name,
             'image' => $this->getEServiceMediaUrl(),

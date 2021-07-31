@@ -25,7 +25,6 @@ Route::prefix('provider')->group(function () {
     Route::get('user', 'API\EProvider\UserAPIController@user');
     Route::get('logout', 'API\EProvider\UserAPIController@logout');
     Route::get('settings', 'API\EProvider\UserAPIController@settings');
-    Route::patch('test/users/{id}', 'API\EProvider\UserAPIController@update');
 });
 
 
@@ -96,6 +95,7 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('bookings', 'API\BookingAPIController');
 
     Route::resource('earnings', 'API\EarningAPIController');
+    Route::get('earnings/debt/remove', 'API\EarningAPIController@removeDebt')->name('debt.delete');
 
     Route::resource('e_provider_payouts', 'API\EProviderPayoutAPIController');
 

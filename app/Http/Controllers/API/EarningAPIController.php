@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\API;
 
 
+use App\Criteria\Earnings\EarningOfUserCriteria;
 use App\Http\Controllers\Controller;
 use App\Models\Earning;
 use App\Repositories\EarningRepository;
@@ -72,5 +73,20 @@ class EarningAPIController extends Controller
         }
 
         return $this->sendResponse($earning->toArray(), 'Earning retrieved successfully');
+    }
+
+    public function removeDebt()
+    {
+        try {
+            $this->earningRepository->pushCriteria(new EarningOfUserCriteria(auth()->id()));
+            $this->earningRepository->all()->map(function ($earning){
+                $earning->admin_earning = 0;
+                $earning->save();
+            });
+            return $this->sendResponse(null, 'Debt remove successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+
     }
 }

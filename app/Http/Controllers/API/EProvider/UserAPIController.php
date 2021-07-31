@@ -203,25 +203,29 @@ class UserAPIController extends Controller
 
             $user = $this->userRepository->update($input, $id);
 
-            $provider = $this->providerRepository->update($request->only([
-                'availability_range',
-                'description',
-                'available',
-                'featured'
-            ]), $user->eProviders()->first()->id);
+            if ($user->eProviders()->first()){
+                $provider = $this->providerRepository->update($request->only([
+                    'availability_range',
+                    'description',
+                    'available',
+                    'featured'
+                ]), $user->eProviders()->first()->id);
 
-            if (isset($input['address'])) {
-                $provider->addresses()->update($request->address);
-            }
+                if (isset($input['address'])) {
+                    $provider->addresses()->update($request->address);
+                }
 
-            if (isset($input['availability_hours'])) {
-                $hours = $input['availability_hours'];
-                if (is_array($hours)){
-                    foreach ($hours as $hour) {
-                        $provider->availabilityHours()->update($hour);
+                if (isset($input['availability_hours'])) {
+                    $hours = $input['availability_hours'];
+                    if (is_array($hours)){
+                        $provider->availabilityHours()->delete();
+                        foreach ($hours as $hour) {
+                            $provider->availabilityHours()->create($hour);
+                        }
                     }
                 }
             }
+
 
         } catch (ValidatorException $e) {
             return $this->sendError($e->getMessage(), 200);

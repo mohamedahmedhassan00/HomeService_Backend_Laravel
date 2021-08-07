@@ -189,30 +189,6 @@ class UserAPIController extends Controller
      */
     public function update($id, Request $request)
     {
-        $users = User::where('id', '!=', $id)->get();
-
-        if ($request->email){
-            foreach ($users as $user){
-                if ($user->email == $request->email) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => [['The email has already been taken.']]
-                    ]);
-                }
-            }
-        }
-
-        if ($request->phone_number){
-            foreach ($users as $user){
-                if ($user->phone_number == $request->phone_number) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => [['The phone_number has already been taken.']]
-                    ]);
-                }
-            }
-        }
-
         $user = $this->userRepository->findWithoutFail($id);
 
         if (empty($user)) {
@@ -222,6 +198,30 @@ class UserAPIController extends Controller
         $input = $request->except(['api_token']);
 
         try {
+            $users = User::where('id', '!=', $id)->get();
+
+            if ($request->email){
+                foreach ($users as $user){
+                    if ($user->email == $request->email) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => [['The email has already been taken.']]
+                        ]);
+                    }
+                }
+            }
+
+            if ($request->phone_number){
+                foreach ($users as $user){
+                    if ($user->phone_number == $request->phone_number) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => [['The phone_number has already been taken.']]
+                        ]);
+                    }
+                }
+            }
+
             if (isset($input['password'])) {
                 $input['password'] = Hash::make($request->input('password'));
             }

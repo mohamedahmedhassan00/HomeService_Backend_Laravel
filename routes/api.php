@@ -95,7 +95,7 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('bookings', 'API\BookingAPIController');
 
     Route::resource('earnings', 'API\EarningAPIController');
-    Route::get('earnings/debt/remove', 'API\EarningAPIController@removeDebt')->name('debt.delete');
+    Route::post('earnings/debt/remove', 'API\EarningAPIController@removeDebt')->name('debt.delete');
 
     Route::resource('e_provider_payouts', 'API\EProviderPayoutAPIController');
 

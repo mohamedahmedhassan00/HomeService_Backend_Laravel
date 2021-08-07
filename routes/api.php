@@ -66,7 +66,7 @@ Route::resource('options', 'API\OptionAPIController');
 Route::middleware('auth:api')->group(function () {
     Route::group(['middleware' => ['role:provider']], function () {
         Route::prefix('provider')->group(function () {
-            Route::post('users/{id}', 'API\UserAPIController@update');
+            Route::post('users/{id}', 'API\EProvider\UserAPIController@update');
             Route::get('dashboard', 'API\DashboardAPIController@provider');
             Route::resource('e_providers', 'API\EProvider\EProviderAPIController');
             Route::resource('notifications', 'API\NotificationAPIController');

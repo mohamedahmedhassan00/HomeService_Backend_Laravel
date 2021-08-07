@@ -185,6 +185,7 @@ class UserAPIController extends Controller
      * @param int $id
      * @param Request $request
      *
+     * @throws ValidationException
      */
     public function update($id, Request $request)
     {
@@ -197,7 +198,30 @@ class UserAPIController extends Controller
         $input = $request->except(['api_token']);
 
         try {
-            $this->validate($request, User::$updateRules);
+            $users = User::where('id', '!=', $id)->get();
+
+            if ($request->email){
+                foreach ($users as $user){
+                    if ($user->email == $request->email) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => [['The email has already been taken.']]
+                        ]);
+                    }
+                }
+            }
+
+            if ($request->phone_number){
+                foreach ($users as $user){
+                    if ($user->phone_number == $request->phone_number) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => [['The phone_number has already been taken.']]
+                        ]);
+                    }
+                }
+            }
+
             if (isset($input['password'])) {
                 $input['password'] = Hash::make($request->input('password'));
             }

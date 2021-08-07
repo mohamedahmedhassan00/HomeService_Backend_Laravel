@@ -203,7 +203,10 @@ class UserAPIController extends Controller
 
             $user = $this->userRepository->update($input, $id);
 
+     
             if ($user->eProviders()->first()){
+                
+           
                 $provider = $this->providerRepository->update($request->only([
                     'availability_range',
                     'description',
@@ -225,13 +228,14 @@ class UserAPIController extends Controller
                     }
                 }
             }
-
+            
+        return $this->sendResponse(new ProviderUserResource($user), __('lang.updated_successfully', ['operator' => __('lang.user')]));
 
         } catch (ValidatorException $e) {
             return $this->sendError($e->getMessage(), 200);
         }
 
-        return $this->sendResponse(new ProviderUserResource($user), __('lang.updated_successfully', ['operator' => __('lang.user')]));
+
     }
 
     function sendResetLinkEmail(Request $request): JsonResponse

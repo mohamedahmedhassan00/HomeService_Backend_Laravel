@@ -75,14 +75,19 @@ class EarningAPIController extends Controller
         return $this->sendResponse($earning->toArray(), 'Earning retrieved successfully');
     }
 
-    public function removeDebt()
+    public function removeDebt(Request $request)
     {
         try {
             $this->earningRepository->pushCriteria(new EarningOfUserCriteria(auth()->id()));
-            $this->earningRepository->all()->map(function ($earning){
+            $adminEarningSum = $this->earningRepository->all()->sum('admin_earning') - $request->amount_paid;
+            $this->earningRepository->all()->map(function ($earning) use($adminEarningSum){
                 $earning->admin_earning = 0;
                 $earning->save();
             });
+            $earning = $this->earningRepository->first();
+            $earning->admin_earning = $adminEarningSum;
+            $earning->save();
+
             return $this->sendResponse(null, 'Debt remove successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());

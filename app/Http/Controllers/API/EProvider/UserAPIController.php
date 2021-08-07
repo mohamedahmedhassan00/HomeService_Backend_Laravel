@@ -197,6 +197,7 @@ class UserAPIController extends Controller
         $input = $request->except(['api_token']);
 
         try {
+            $this->validate($request, User::$updateRules);
             if (isset($input['password'])) {
                 $input['password'] = Hash::make($request->input('password'));
             }

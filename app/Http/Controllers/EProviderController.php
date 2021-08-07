@@ -9,6 +9,7 @@
 namespace App\Http\Controllers;
 
 use App\Criteria\Addresses\AddressesOfUserCriteria;
+use App\Criteria\AvailabilityHours\AvailabilityHoursOfUserCriteria;
 use App\Criteria\EProviders\EProvidersOfUserCriteria;
 use App\Criteria\Users\EProvidersCustomersCriteria;
 use App\DataTables\EProviderDataTable;
@@ -17,6 +18,7 @@ use App\Events\EProviderChangedEvent;
 use App\Http\Requests\CreateEProviderRequest;
 use App\Http\Requests\UpdateEProviderRequest;
 use App\Repositories\AddressRepository;
+use App\Repositories\AvailabilityHourRepository;
 use App\Repositories\CustomFieldRepository;
 use App\Repositories\EProviderRepository;
 use App\Repositories\EProviderTypeRepository;
@@ -67,11 +69,13 @@ class EProviderController extends Controller
      */
     private $taxRepository;
 
+    private $availabilityHourRepository;
+
     public function __construct(EProviderRepository $eProviderRepo, CustomFieldRepository $customFieldRepo, UploadRepository $uploadRepo
         , EProviderTypeRepository $eProviderTypeRepo
         , UserRepository $userRepo
         , AddressRepository $addressRepo
-        , TaxRepository $taxRepo)
+        , TaxRepository $taxRepo, AvailabilityHourRepository $availabilityHourRepository)
     {
         parent::__construct();
         $this->eProviderRepository = $eProviderRepo;
@@ -81,6 +85,7 @@ class EProviderController extends Controller
         $this->userRepository = $userRepo;
         $this->addressRepository = $addressRepo;
         $this->taxRepository = $taxRepo;
+        $this->availabilityHourRepository = $availabilityHourRepository;
     }
 
     /**
@@ -113,18 +118,28 @@ class EProviderController extends Controller
     public function create()
     {
         $eProviderType = $this->eProviderTypeRepository->pluck('name', 'id');
-        $user = $this->userRepository->getByCriteria(new EProvidersCustomersCriteria())->pluck('name', 'id');
+        $users = $this->userRepository->getByCriteria(new EProvidersCustomersCriteria())->all('name', 'email', 'id');
+        $usersArray = [];
+        foreach ($users as $user) {
+            $usersArray[$user->id] = $user->name . ' - ' . $user->email;
+        }
         $address = $this->addressRepository->getByCriteria(new AddressesOfUserCriteria(auth()->id()))->pluck('address', 'id');
+        $availabilityHours = $this->availabilityHourRepository->getByCriteria(new AvailabilityHoursOfUserCriteria(auth()->id()))->all('day','start_at','end_at', 'id');
+        $availabilityHoursArray = [];
+        foreach ($availabilityHours as $aHour) {
+            $availabilityHoursArray[$aHour->id] = $aHour->day . ' ' .$aHour->start_at . ' - ' . $aHour->end_at;
+        }
         $tax = $this->taxRepository->pluck('name', 'id');
         $usersSelected = [];
         $addressesSelected = [];
+        $availabilityHoursSelected = [];
         $taxesSelected = [];
         $hasCustomField = in_array($this->eProviderRepository->model(), setting('custom_field_models', []));
         if ($hasCustomField) {
             $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->eProviderRepository->model());
             $html = generateCustomField($customFields);
         }
-        return view('e_providers.create')->with("customFields", isset($html) ? $html : false)->with("eProviderType", $eProviderType)->with("user", $user)->with("usersSelected", $usersSelected)->with("address", $address)->with("addressesSelected", $addressesSelected)->with("tax", $tax)->with("taxesSelected", $taxesSelected);
+        return view('e_providers.create')->with("customFields", isset($html) ? $html : false)->with("eProviderType", $eProviderType)->with("user", $usersArray)->with("usersSelected", $usersSelected)->with("address", $address)->with("addressesSelected", $addressesSelected)->with("availabilityHours", $availabilityHoursArray)->with("availabilityHoursSelected", $availabilityHoursSelected)->with("tax", $tax)->with("taxesSelected", $taxesSelected);
     }
 
     /**
@@ -203,11 +218,21 @@ class EProviderController extends Controller
             return redirect(route('eProviders.index'));
         }
         $eProviderType = $this->eProviderTypeRepository->pluck('name', 'id');
-        $user = $this->userRepository->getByCriteria(new EProvidersCustomersCriteria())->pluck('name', 'id');
+        $users = $this->userRepository->getByCriteria(new EProvidersCustomersCriteria())->all('name', 'email', 'id');
+        $usersArray = [];
+        foreach ($users as $user) {
+            $usersArray[$user->id] = $user->name . ' - ' . $user->email;
+        }
         $address = $this->addressRepository->getByCriteria(new AddressesOfUserCriteria(auth()->id()))->pluck('address', 'id');
+        $availabilityHours = $this->availabilityHourRepository->getByCriteria(new AvailabilityHoursOfUserCriteria(auth()->id()))->all('day','start_at','end_at', 'id');
+        $availabilityHoursArray = [];
+        foreach ($availabilityHours as $aHour) {
+            $availabilityHoursArray[$aHour->id] = $aHour->day . ' ' .$aHour->start_at . ' - ' . $aHour->end_at;
+        }
         $tax = $this->taxRepository->pluck('name', 'id');
         $usersSelected = $eProvider->users()->pluck('users.id')->toArray();
         $addressesSelected = $eProvider->addresses()->pluck('addresses.id')->toArray();
+        $availabilityHoursSelected = $eProvider->availabilityHours()->pluck('availabilityHours.id')->toArray();
         $taxesSelected = $eProvider->taxes()->pluck('taxes.id')->toArray();
 
         $customFieldsValues = $eProvider->customFieldsValues()->with('customField')->get();
@@ -217,7 +242,7 @@ class EProviderController extends Controller
             $html = generateCustomField($customFields, $customFieldsValues);
         }
 
-        return view('e_providers.edit')->with('eProvider', $eProvider)->with("customFields", isset($html) ? $html : false)->with("eProviderType", $eProviderType)->with("user", $user)->with("usersSelected", $usersSelected)->with("address", $address)->with("addressesSelected", $addressesSelected)->with("tax", $tax)->with("taxesSelected", $taxesSelected);
+        return view('e_providers.edit')->with('eProvider', $eProvider)->with("customFields", isset($html) ? $html : false)->with("eProviderType", $eProviderType)->with("user", $usersArray)->with("usersSelected", $usersSelected)->with("address", $address)->with("addressesSelected", $addressesSelected)->with("availabilityHours", $availabilityHoursArray)->with("availabilityHoursSelected", $availabilityHoursSelected)->with("tax", $tax)->with("taxesSelected", $taxesSelected);
     }
 
     /**
@@ -242,6 +267,7 @@ class EProviderController extends Controller
         $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->eProviderRepository->model());
         try {
             $input['addresses'] = isset($input['addresses']) ? $input['addresses'] : [];
+            $input['availabilityHours'] = isset($input['availabilityHours']) ? $input['availabilityHours'] : [];
             $input['taxes'] = isset($input['taxes']) ? $input['taxes'] : [];
             $eProvider = $this->eProviderRepository->update($input, $id);
             if (isset($input['image']) && $input['image'] && is_array($input['image'])) {

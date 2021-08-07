@@ -93,13 +93,15 @@
     </div>
 
     <!-- Users Field -->
-    <!-- <div class="form-group align-items-baseline d-flex flex-column flex-md-row">
+    @role('admin')
+   <div class="form-group align-items-baseline d-flex flex-column flex-md-row">
         {!! Form::label('users[]', trans("lang.e_provider_users"),['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
         <div class="col-md-9">
-            {!! Form::select('users[]', $user, $usersSelected, ['class' => 'select2 form-control' , 'multiple'=>'multiple']) !!}
+            {!! Form::select('users[]', $user, $usersSelected, ['class' => 'select2 form-control']) !!}
             <div class="form-text text-muted">{{ trans("lang.e_provider_users_help") }}</div>
         </div>
-    </div> -->
+    </div>
+    @endrole
 
 </div>
 <div class="d-flex flex-column col-sm-12 col-md-6">
@@ -129,11 +131,25 @@
     <div class="form-group align-items-baseline d-flex flex-column flex-md-row">
         {!! Form::label('addresses[]', trans("lang.e_provider_addresses"),['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
         <div class="col-md-9">
-            {!! Form::select('addresses[]', $address, $addressesSelected, ['class' => 'select2 form-control' , 'multiple'=>'multiple']) !!}
+            {!! Form::select('addresses[]', $address, $addressesSelected, ['class' => 'select2 form-control']) !!}
             <div class="form-text text-muted">
                 {{ trans("lang.e_provider_addresses_help") }}
                 @can('addresses.create')
                     <a href="{{route('addresses.create')}}" class="text-success float-right">{{__('lang.address_create')}}</a>
+                @endcan
+            </div>
+        </div>
+    </div>
+
+    <!-- Availability Hours Field -->
+    <div class="form-group align-items-baseline d-flex flex-column flex-md-row">
+        {!! Form::label('availabilityHours[]', trans("lang.availability_hour"),['class' => 'col-md-3 control-label text-md-right mx-1']) !!}
+        <div class="col-md-9">
+            {!! Form::select('availabilityHours[]', $availabilityHours , $availabilityHoursSelected, ['class' => 'select2 form-control', 'multiple' => 'multiple']) !!}
+            <div class="form-text text-muted">
+                {{ trans("lang.availability_hour") }}
+                @can('addresses.create')
+                    <a href="{{route('availabilityHours.create')}}" class="text-success float-right">{{__('lang.availability_hour_create')}}</a>
                 @endcan
             </div>
         </div>

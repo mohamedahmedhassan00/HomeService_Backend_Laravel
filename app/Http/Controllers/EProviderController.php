@@ -232,7 +232,7 @@ class EProviderController extends Controller
         $tax = $this->taxRepository->pluck('name', 'id');
         $usersSelected = $eProvider->users()->pluck('users.id')->toArray();
         $addressesSelected = $eProvider->addresses()->pluck('addresses.id')->toArray();
-        $availabilityHoursSelected = $eProvider->availabilityHours()->pluck('availabilityHours.id')->toArray();
+        $availabilityHoursSelected = $eProvider->availabilityHours()->pluck('availability_hours.id')->toArray();
         $taxesSelected = $eProvider->taxes()->pluck('taxes.id')->toArray();
 
         $customFieldsValues = $eProvider->customFieldsValues()->with('customField')->get();

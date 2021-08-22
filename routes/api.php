@@ -86,6 +86,7 @@ Route::middleware('auth:api')->group(function () {
     ]);
     Route::post('e_service_reviews', 'API\EServiceReviewAPIController@store')->name('e_service_reviews.store');
 
+    Route::get('e_services/price/range', 'API\EServiceAPIController@getPriceRange');
 
     Route::resource('favorites', 'API\FavoriteAPIController');
     Route::resource('addresses', 'API\AddressAPIController');
@@ -93,6 +94,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('notifications/count', 'API\NotificationAPIController@count');
     Route::resource('notifications', 'API\NotificationAPIController');
     Route::resource('bookings', 'API\BookingAPIController');
+    Route::post('prompt-booking', 'API\BookingAPIController@promptBooking');
+    Route::get('promptBookings', 'API\PromptBookingController@index');
+    Route::get('promptBookings/{id}', 'API\PromptBookingController@show');
 
     Route::resource('earnings', 'API\EarningAPIController');
     Route::post('earnings/debt/remove', 'API\EarningAPIController@removeDebt')->name('debt.delete');

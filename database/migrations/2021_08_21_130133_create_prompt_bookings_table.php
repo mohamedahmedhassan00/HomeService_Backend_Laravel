@@ -1,17 +1,11 @@
 <?php
-/*
- * File name: 2021_01_25_212252_create_bookings_table.php
- * Last modified: 2021.04.20 at 11:19:32
- * Author: SmarterVision - https://codecanyon.net/user/smartervision
- * Copyright (c) 2021
- */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateBookingsTable extends Migration
+class CreatePromptBookingsTable extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -19,12 +13,9 @@ class CreateBookingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bookings', function (Blueprint $table) {
+        Schema::create('prompt_bookings', function (Blueprint $table) {
             $table->increments('id');
-            $table->longText('e_provider')->nullable();
-            $table->longText('e_service')->nullable();
             $table->string('booking_key')->nullable();
-            $table->tinyInteger('to_customer')->default(0);
             $table->longText('options')->nullable();
             $table->smallInteger('quantity')->nullable()->default(1);
             $table->bigInteger('user_id')->nullable()->unsigned();
@@ -32,7 +23,6 @@ class CreateBookingsTable extends Migration
             $table->longText('address');
             $table->integer('payment_id')->nullable()->unsigned();
             $table->longText('coupon')->nullable();
-            $table->longText('taxes')->nullable();
             $table->dateTime('booking_at')->nullable();
             $table->dateTime('start_at')->nullable();
             $table->dateTime('ends_at')->nullable();
@@ -52,6 +42,6 @@ class CreateBookingsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('bookings');
+        Schema::dropIfExists('prompt_bookings');
     }
 }

@@ -245,4 +245,19 @@ class EServiceAPIController extends Controller
             Log::error($e->getMessage());
         }
     }
+
+    public function getPriceRange(Request $request)
+    {
+        try {
+            $this->eServiceRepository->pushCriteria(new RequestCriteria($request));
+            $this->eServiceRepository->pushCriteria(new EServicesOfUserCriteria(auth()->id()));
+            $this->eServiceRepository->pushCriteria(new NearCriteria($request));
+        } catch (RepositoryException $e) {
+            return $this->sendError($e->getMessage());
+        }
+        $max = $this->eServiceRepository->get()->max('price');
+        $min = $this->eServiceRepository->get()->min('price');
+
+        return $this->sendResponse(['min' => $min, 'max' => $max], 'price range');
+    }
 }

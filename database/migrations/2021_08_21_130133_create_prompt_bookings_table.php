@@ -19,6 +19,8 @@ class CreatePromptBookingsTable extends Migration
             $table->longText('options')->nullable();
             $table->smallInteger('quantity')->nullable()->default(1);
             $table->bigInteger('user_id')->nullable()->unsigned();
+            $table->integer('category_id')->nullable()->unsigned();
+            $table->string('price_range')->nullable();
             $table->integer('booking_status_id')->nullable()->unsigned();
             $table->longText('address');
             $table->integer('payment_id')->nullable()->unsigned();
@@ -30,6 +32,7 @@ class CreatePromptBookingsTable extends Migration
             $table->boolean('cancel')->nullable()->default(0);
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null')->onUpdate('set null');
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null')->onUpdate('set null');
             $table->foreign('booking_status_id')->references('id')->on('booking_statuses')->onDelete('set null')->onUpdate('cascade');
             $table->foreign('payment_id')->references('id')->on('payments')->onDelete('set null')->onUpdate('set null');
         });

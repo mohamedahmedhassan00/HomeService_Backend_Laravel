@@ -255,8 +255,9 @@ class EServiceAPIController extends Controller
         } catch (RepositoryException $e) {
             return $this->sendError($e->getMessage());
         }
-        $max = $this->eServiceRepository->get()->max('price');
-        $min = $this->eServiceRepository->get()->min('price');
+        $eServices = $this->eServiceRepository->get();
+        $max = $eServices->max('price');
+        $min = $eServices->min('price');
 
         return $this->sendResponse(['min' => $min, 'max' => $max], 'price range');
     }

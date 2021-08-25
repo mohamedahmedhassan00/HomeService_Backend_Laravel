@@ -195,7 +195,7 @@ class EProvider extends Model implements HasMedia, Castable
      */
     public function getAvailableAttribute(): bool
     {
-        return $this->accepted && $this->attributes['available'] && $this->openingHours()->isOpen();
+        return $this->accepted && $this->attributes['available'] ;
     }
 
     public function openingHours(): OpeningHours

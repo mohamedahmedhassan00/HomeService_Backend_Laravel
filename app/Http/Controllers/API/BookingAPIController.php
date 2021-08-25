@@ -136,7 +136,7 @@ class BookingAPIController extends Controller
         } catch (RepositoryException $e) {
             return $this->sendError($e->getMessage());
         }
-        $bookings = $this->bookingRepository->whereToCustomer(1)->get();
+        $bookings = $this->bookingRepository->all();
 
         return $this->sendResponse($bookings->toArray(), 'Bookings retrieved successfully');
     }
@@ -233,8 +233,10 @@ class BookingAPIController extends Controller
                 ->whereHas('eProvider', function ($query) {
                     $query->whereAvailable(1);
                 })
+                ->whereHas('categories', function ($query) use ($request) {
+                    $query->whereId($request->category_id);
+                })
                 ->inRandomOrder()->take(10)->get();
-
 
             if ($eServices->count()) {
                 $input = $request->all();
@@ -262,7 +264,9 @@ class BookingAPIController extends Controller
                 $input['booking_key'] = $booking_Key;
                 $input['user_id'] = auth()->id();
 
-                $promptBooking = PromptBooking::create($input);
+                $promptBooking = PromptBooking::create(array_merge($input, ['category_id' => $request->category_id, 'price_range' => json_encode($request->range)]));
+
+                $promptBooking = PromptBooking::with('category')->find($promptBooking->id);
 
                 foreach ($eServices as $eService) {
                     $eProvider = $eService->eProvider;

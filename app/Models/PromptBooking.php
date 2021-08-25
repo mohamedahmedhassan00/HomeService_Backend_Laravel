@@ -33,6 +33,8 @@ class PromptBooking extends Model
         'options',
         'quantity',
         'user_id',
+        'category_id',
+        'price_range',
         'booking_status_id',
         'address',
         'payment_id',
@@ -88,6 +90,11 @@ class PromptBooking extends Model
     public function payment()
     {
         return $this->belongsTo(Payment::class, 'payment_id', 'id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id', 'id');
     }
 
 

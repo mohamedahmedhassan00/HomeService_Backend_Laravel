@@ -2,14 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Criteria\Bookings\BookingsOfUserCriteria;
 use App\Http\Controllers\Controller;
 use App\Models\PromptBooking;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use InfyOm\Generator\Criteria\LimitOffsetCriteria;
-use Prettus\Repository\Criteria\RequestCriteria;
-use Prettus\Repository\Exceptions\RepositoryException;
 
 class PromptBookingController extends Controller
 {
@@ -22,7 +18,7 @@ class PromptBookingController extends Controller
      */
     public function index()
     {
-        $bookings = PromptBooking::whereUserId(auth()->id())->get();
+        $bookings = PromptBooking::with('category')->whereUserId(auth()->id())->get();
 
         return $this->sendResponse($bookings->toArray(), 'Bookings retrieved successfully');
     }
@@ -37,7 +33,7 @@ class PromptBookingController extends Controller
      */
     public function show($id, Request $request)
     {
-        $booking = PromptBooking::find($id);
+        $booking = PromptBooking::with('category')->find($id);
         if (empty($booking)) {
             return $this->sendError('Prompt Booking not found');
         }

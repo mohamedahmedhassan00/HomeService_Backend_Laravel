@@ -54,6 +54,7 @@ class BookingsOfUserCriteria implements CriteriaInterface
 
         } else if (auth()->user()->hasRole('customer')) {
             return $model->where('bookings.user_id', $this->userId)
+                ->where('bookings.to_customer', 1)
                 ->select('bookings.*')
                 ->groupBy('bookings.id');
         } else {

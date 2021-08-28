@@ -251,7 +251,7 @@ class EServiceAPIController extends Controller
         try {
             $this->eServiceRepository->pushCriteria(new RequestCriteria($request));
             $this->eServiceRepository->pushCriteria(new EServicesOfUserCriteria(auth()->id()));
-            $this->eServiceRepository->pushCriteria(new NearCriteria($request));
+           //$this->eServiceRepository->pushCriteria(new NearCriteria($request));
         } catch (RepositoryException $e) {
             return $this->sendError($e->getMessage());
         }

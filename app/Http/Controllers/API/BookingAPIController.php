@@ -14,6 +14,7 @@ use App\Criteria\EServices\EServicesOfUserCriteria;
 use App\Criteria\EServices\NearCriteria;
 use App\Http\Controllers\Controller;
 use App\Models\Address;
+use App\Models\EProvider;
 use App\Models\PromptBooking;
 use App\Notifications\NewBooking;
 use App\Notifications\StatusChangedBooking;
@@ -196,6 +197,7 @@ class BookingAPIController extends Controller
             $input['taxes'] = $taxes;
             $input['e_service'] = $eService;
             $input['booking_Key'] = Str::random(10);
+            $input['to_customer'] = 1;
             if (isset($input['options'])) {
                 $input['options'] = $this->optionRepository->findWhereIn('id', $input['options']);
             }
@@ -311,37 +313,38 @@ class BookingAPIController extends Controller
         // $oldStatus = $oldBooking->payment->status;
         $input = $request->all();
         try {
-            $BookingsByKeyNotReceivedCount = $this->bookingRepository->whereBookingKey($oldBooking->booking_key)
-                ->whereHas('bookingStatus', function ($query){
-                    $query->where('status', '!=', 'Received');
-                })->count();
-            if (!$BookingsByKeyNotReceivedCount) {
-                $booking = $this->bookingRepository->update(array_merge($input, ['to_customer' => 1]), $id);
-                $promptBooking = PromptBooking::whereBookingKey($booking->booking_key)->first();
-                $promptBooking->delete();
-                $providerBookings = $this->bookingRepository->whereBookingKey($booking->booking_key)->whereToCustomer(0)->get();
-                foreach ($providerBookings as $providerBooking)
-                {
-                    $providerBooking->delete();
+            if ($oldBooking->to_customer && ($oldBooking->e_provider->users()->first()->id == auth()->id() || $oldBooking->user_id == auth()->id())) {
+                $booking = $this->bookingRepository->update($input, $id);
+            } else {
+                $BookingsByKeyNotReceivedCount = $this->bookingRepository->whereBookingKey($oldBooking->booking_key)
+                    ->whereHas('bookingStatus', function ($query){
+                        $query->where('status', '!=', 'Received');
+                    })->count();
+                if (!$BookingsByKeyNotReceivedCount) {
+                    $booking = $this->bookingRepository->update(array_merge($input, ['to_customer' => 1]), $id);
+                    $promptBooking = PromptBooking::whereBookingKey($booking->booking_key)->first();
+                    $promptBooking->delete();
+                    $providerBookings = $this->bookingRepository->whereBookingKey($booking->booking_key)->whereToCustomer(0)->get();
+                    foreach ($providerBookings as $providerBooking)
+                    {
+                        $providerBooking->delete();
+                    }
+                } else {
+                    return $this->sendError('Booking already accepted');
                 }
-                /*            if (isset($input['booking_status_id']) && $input['booking_status_id'] == 5 && !empty($booking)) {
-                                $this->paymentRepository->update(['status' => 'Paid'], $booking['payment_id']);
-                            }
-                            event(new BookingChangedEvent($oldStatus, $booking));*/
-                if (setting('enable_notifications', false)) {
-                    if (isset($input['booking_status_id']) && $input['booking_status_id'] != $oldBooking->booking_status_id) {
-                        if ($booking->bookingStatus->order < 40) {
-                            Notification::send([$booking->user], new StatusChangedBooking($booking));
-                        } else {
-                            Notification::send($booking->e_provider->users, new StatusChangedBooking($booking));
-                        }
+            }
+
+            if (setting('enable_notifications', false)) {
+                if (isset($input['booking_status_id']) && $input['booking_status_id'] != $oldBooking->booking_status_id) {
+                    if ($booking->bookingStatus->order < 40) {
+                        Notification::send([$booking->user], new StatusChangedBooking($booking));
+                    } else {
+                        Notification::send($booking->e_provider->users, new StatusChangedBooking($booking));
                     }
                 }
-                return $this->sendResponse($booking->toArray(), __('lang.saved_successfully', ['operator' => __('lang.booking')]));
-
-            } else {
-                return $this->sendError('Booking already accepted');
             }
+            return $this->sendResponse($booking->toArray(), __('lang.saved_successfully', ['operator' => __('lang.booking')]));
+
 
         } catch (ValidatorException $e) {
             return $this->sendError($e->getMessage());

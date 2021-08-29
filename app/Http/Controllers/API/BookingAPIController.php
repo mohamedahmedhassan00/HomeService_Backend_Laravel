@@ -232,9 +232,9 @@ class BookingAPIController extends Controller
             $this->eServiceRepository->pushCriteria(new EServicesOfUserCriteria(auth()->id()));
             $this->eServiceRepository->pushCriteria(new NearCriteria($request));
             $eServices = $this->eServiceRepository->with('eProvider')->whereBetween('price', $request->range)->whereAvailable(1)
-                ->whereHas('eProvider', function ($query) {
-                    $query->whereAvailable(1);
-                })
+//                ->whereHas('eProvider', function ($query) {
+//                    $query->whereAvailable(1);
+//                })
                 ->whereHas('categories', function ($query) use ($request) {
                     $query->whereId($request->category_id);
                 })

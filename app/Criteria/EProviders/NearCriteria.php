@@ -52,7 +52,7 @@ class NearCriteria implements CriteriaInterface
 
             return $model->select(DB::raw("SQRT(
                 POW(69.1 * (latitude - $myLat), 2) +
-                POW(69.1 * ($myLon - longitude) * COS(latitude / 57.3), 2)) AS distance, SQRT(
+                POW(69.1 * ($myLon - longitude) * COS(latitude / 57.3), 2)), 1) < 10 AS distance, SQRT(
                 POW(69.1 * (latitude - $areaLat), 2) +
                 POW(69.1 * ($areaLon - longitude) * COS(latitude / 57.3), 2))  AS area"), "eproviders.*")
                 ->orderBy('available')

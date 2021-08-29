@@ -15,9 +15,8 @@ class ProviderUserResource extends JsonResource
     public function toArray($request)
     {
         return array_merge(parent::toArray($request), [
-            'provider' => $this->eProviders()->first(),
+            'provider' => $this->eProviders()->with('availabilityHours')->first(),
             'addresses' => $this->eProviders()->first()->addresses,
-            'availability_hours' => $this->eProviders()->first()->availabilityHours
         ]);
     }
 }

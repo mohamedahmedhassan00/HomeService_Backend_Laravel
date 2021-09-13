@@ -318,7 +318,7 @@ class BookingAPIController extends Controller
             } else {
                 $BookingsByKeyNotReceivedCount = $this->bookingRepository->whereBookingKey($oldBooking->booking_key)
                     ->whereHas('bookingStatus', function ($query){
-                        $query->where('status', '!=', 'Received');
+                        $query->where('id', '!=', 1);
                     })->count();
                 if (!$BookingsByKeyNotReceivedCount) {
                     $booking = $this->bookingRepository->update(array_merge($input, ['to_customer' => 1]), $id);

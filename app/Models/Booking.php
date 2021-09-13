@@ -94,9 +94,9 @@ class Booking extends Model
         'quantity' => 'integer',
         'user_id' => 'integer',
         'booking_key' => 'string',
-        'booking_at' => 'datetime:Y-m-d\TH:i:s.uP',
-        'start_at' => 'datetime:Y-m-d\TH:i:s.uP',
-        'ends_at' => 'datetime:Y-m-d\TH:i:s.uP',
+        'booking_at' => 'datetime:Y-m-d\Th:i:s.uP',
+        'start_at' => 'datetime:Y-m-d\Th:i:s.uP',
+        'ends_at' => 'datetime:Y-m-d\Th:i:s.uP',
         'hint' => 'string',
         'cancel' => 'boolean'
     ];

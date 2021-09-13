@@ -65,7 +65,7 @@ class NewBooking extends Notification
         $notification = [
             'booking_id' => $this->booking->id,
             'title' => $this->booking->e_provider->name,
-            'body' => "New Booking #" . $this->booking->id . " from " . $this->booking->user->name,
+            'body' => "حجز جديد #" . $this->booking->id . " من " . $this->booking->user->name,
             'image' => $this->getEServiceMediaUrl(),
             'click_action' => "FLUTTER_NOTIFICATION_CLICK",
             'id' => '1',

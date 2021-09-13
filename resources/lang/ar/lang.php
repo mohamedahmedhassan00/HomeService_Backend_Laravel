@@ -567,7 +567,7 @@ return [
     'notification_user_id' => 'معرف المستخدم',
     'notification_user_id_help' => 'أدخل معرف المستخدم',
     'notification_user_id_placeholder' => 'أدخل معرف المستخدم',
-    'notification_your_booking' => 'الحجز #: booking_id هو: booking_status',
+    'notification_your_booking' => 'الحجز #'.':booking_id : :booking_status',
     'notification_payment' => 'الدفع ل #: booking_id هو: payment_status',
     'number' => 'عدد',
     'ok' => 'نعم',

@@ -187,20 +187,17 @@ class UserAPIController extends Controller
         }
         $input = $request->except(['api_token']);
         try {
-            if ($request->has('device_token')) {
-                $user = $this->userRepository->update($request->only('device_token'), $id);
-            } else {
-                $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->userRepository->model());
-                if (isset($input['password'])) {
-                    $input['password'] = Hash::make($request->input('password'));
-                }
-                $user = $this->userRepository->update($input, $id);
-
-                foreach (getCustomFieldsValues($customFields, $request) as $value) {
-                    $user->customFieldsValues()
-                        ->updateOrCreate(['custom_field_id' => $value['custom_field_id']], $value);
-                }
+            $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->userRepository->model());
+            if (isset($input['password'])) {
+                $input['password'] = Hash::make($request->input('password'));
             }
+            $user = $this->userRepository->update($input, $id);
+
+            foreach (getCustomFieldsValues($customFields, $request) as $value) {
+                $user->customFieldsValues()
+                    ->updateOrCreate(['custom_field_id' => $value['custom_field_id']], $value);
+            }
+
         } catch (ValidatorException $e) {
             return $this->sendError($e->getMessage(), 200);
         }

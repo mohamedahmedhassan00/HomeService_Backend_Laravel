@@ -202,6 +202,7 @@ class EService extends Model implements HasMedia, Castable
             ->select(DB::raw("SQRT(
                 POW(69.1 * (addresses.latitude - $latitude), 2) +
                 POW(69.1 * ($longitude - addresses.longitude) * COS(addresses.latitude / 57.3), 2)) AS distance"), "e_services.*")
+                ->having("distance", "<", 10)
             ->orderBy('distance');
     }
 
